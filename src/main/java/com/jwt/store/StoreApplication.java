@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 
@@ -17,7 +19,7 @@ public class StoreApplication {
 		SpringApplication.run(StoreApplication.class, args);
 	}
 
-	@Bean
+	//@Bean
 	CommandLineRunner run(AppUserService userService){
 		return args -> {
 			userService.saveRole(new UserRole(null, "ROLE_USER"));
@@ -38,6 +40,11 @@ public class StoreApplication {
 			userService.addRoleToUser("yahoo@yahoo", "ADMIN");
 			userService.addRoleToUser("yahoo@yahoo", "MAIN_ADMIN");
 		};
+	}
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 }
