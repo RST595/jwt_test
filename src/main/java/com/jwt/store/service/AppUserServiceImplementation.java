@@ -26,6 +26,8 @@ import java.util.Optional;
 @Transactional // to change entity in repo without saving it
 @Slf4j // add log to service
 public class AppUserServiceImplementation implements AppUserService, UserDetailsService {
+
+    private static final String ERROR_MESSAGE_USRNF = "user not founded";
     private final AppUserRepo appUserRepo;
     private final UserRoleRepo userRoleRepo;
     private final PasswordEncoder passwordEncoder;
@@ -33,7 +35,7 @@ public class AppUserServiceImplementation implements AppUserService, UserDetails
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException { // need to override this method to implement UserDetailsService
         AppUser user = appUserRepo.findByEmail(email).orElseThrow(()
-                -> new UsernameNotFoundException("user not founded"));
+                -> new UsernameNotFoundException(ERROR_MESSAGE_USRNF));
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName()))); //Transform our user roles to GrantedAuthority
         return new User(user.getEmail(), user.getPassword(), authorities); //returning not AppUser, but User, who need to Spring Security
@@ -56,7 +58,7 @@ public class AppUserServiceImplementation implements AppUserService, UserDetails
     public void addRoleToUser(String email, String roleName) {
         log.info("Add new role {} to the user {}", roleName, email);
         appUserRepo.findByEmail(email).orElseThrow(()
-                -> new UsernameNotFoundException("user not founded")).getRoles().add(userRoleRepo.findByName(roleName));
+                -> new UsernameNotFoundException(ERROR_MESSAGE_USRNF)).getRoles().add(userRoleRepo.findByName(roleName));
         // don't need to save because of @Transactional
     }
 

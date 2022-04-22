@@ -2,6 +2,7 @@ package com.jwt.store.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,24 +48,26 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         User user = (User) authentication.getPrincipal();
         //TODO: encrypt string with encoder
         Algorithm algorithm = com.auth0.jwt.algorithms.Algorithm.HMAC256("secretForEncryption".getBytes());
-        String access_token = JWT.create()
+        String accessToken = JWT.create()
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 10*60*1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
 
-        String refresh_token = JWT.create()
+        String refreshToken = JWT.create()
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 30*60*1000))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
-        response.setHeader("access_token", access_token);
-        response.setHeader("refresh_token", refresh_token);
+//        response.setHeader("access_token", accessToken);
+//        response.setHeader("refresh_token", refreshToken);
+        Map<String, String> jwtTokens = new HashMap<>(); //for tokens be represented in body, only for easy testing through postman
+        jwtTokens.put("access_token", accessToken);
+        jwtTokens.put("refresh_token", refreshToken);
+        response.setContentType(APPLICATION_JSON_VALUE);
+        new ObjectMapper().writeValue(response.getOutputStream(), jwtTokens);
+
     }
 
-    @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        super.unsuccessfulAuthentication(request, response, failed);
-    }
 }
