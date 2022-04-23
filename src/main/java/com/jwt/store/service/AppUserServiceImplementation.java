@@ -70,6 +70,7 @@ public class AppUserServiceImplementation implements AppUserService, UserDetails
 
     @Override
     public List<AppUser> getUsers() {
+
         return appUserRepo.findAll();
     }
 }

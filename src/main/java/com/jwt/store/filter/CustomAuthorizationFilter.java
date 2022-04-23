@@ -30,10 +30,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(request.getServletPath().equals("/save/login")){
+        if(request.getServletPath().equals("/user/login") || request.getServletPath().equals("/user/refresh")){
             filterChain.doFilter(request, response); //let go through to login page without authorization
         } else {
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
+            String authorizationHeader = request.getHeader(AUTHORIZATION); // "Authorization" - name of key for token
             //set "Bearer " before token.
             //Means no further authentication for user with this token because he is bearer of this token.
             //A security token with the property that any party in possession of the token (a "bearer") can use

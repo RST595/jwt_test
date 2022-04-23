@@ -38,11 +38,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable(); //only for project which not use browser, because it gave us pure security
         // for browser applications. if enabled, spring security sending to frontend cookie with token X-XSRF-TOKEN,
         // and then authenticate each post/put/delete request with this token
+
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeHttpRequests().antMatchers("/user/login/**").permitAll();
+        http.authorizeRequests().antMatchers("/user/login/**", "/user/refresh/**").permitAll();
         http.authorizeRequests().antMatchers(GET, "/user/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().antMatchers(POST, "/user/save/**").hasAnyAuthority("ADMIN");
-        http.authorizeHttpRequests().anyRequest().authenticated();
+        http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

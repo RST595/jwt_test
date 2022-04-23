@@ -36,8 +36,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 //    }
     @Override // custom authentication for user. calls when user try to authenticate
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        String email = request.getParameter("email"); //name of key in postman
+        String password = request.getParameter("password");//name of key in postman
         log.info("Email is: {}", email); log.info("Password is: {}", password);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
         return  authenticationManager.authenticate(authenticationToken);
@@ -50,14 +50,14 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         Algorithm algorithm = com.auth0.jwt.algorithms.Algorithm.HMAC256("secretForEncryption".getBytes());
         String accessToken = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 10*60*1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 30*1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);
 
         String refreshToken = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 30*60*1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 2*60*1000))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
 //        response.setHeader("access_token", accessToken);
